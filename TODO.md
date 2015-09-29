@@ -1,0 +1,14 @@
+- agents to gather information
+  - RSS agent
+  - Twitter agent?
+  - etc
+- agents should be able to scale horizontally (pick jobs from a queue)
+- how to store and compare metadata about a story?
+  - external links
+    - handle redirects to only store the final form of a link
+  - images
+    - crush to 64x64/bw for easy storage and comparison
+    - geotagging?
+    - image metadata?
+  - tags
+  - text analysis (find keywords)
