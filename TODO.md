@@ -5,8 +5,9 @@
 - agents should be able to scale horizontally (pick jobs from a queue)
 - how to store and compare metadata about a story?
   - external links
-    - handle redirects to only store the final form of a link
+    - handle redirects to only store the final url
   - images
+    - url (handle redirects)
     - crush to 64x64/bw for easy storage and comparison
     - geotagging?
     - image metadata?
