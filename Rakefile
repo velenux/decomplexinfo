@@ -1,5 +1,5 @@
-NAME = 'sinatra-dev'
-CONTAINER_RUBY_VERSION = '2.2.2' # Keep the same value as the Dockerfile
+NAME = 'decomplexinfo'
+CONTAINER_RUBY_VERSION = '2.4' # Keep the same value as the Dockerfile
 
 task :default => :run
 
@@ -9,7 +9,7 @@ task :run do
   build_command unless image_exist?(NAME)
 
   # Run sinatra app
-  run_command 'ruby app.rb -o 0.0.0.0'
+  run_command 'ruby get_rss.rb > rss.html'
 end
 
 desc "Update Gemfile.lock"
