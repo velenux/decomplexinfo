@@ -6,7 +6,6 @@
 require 'net/http'
 require 'uri'
 require 'feedjira'
-
 require 'logger'
 require 'set'
 require 'sequel'
@@ -14,14 +13,13 @@ require 'sequel'
 DB = Sequel.sqlite
 DB.loggers << Logger.new('db-debug.log')
 
-
 # MODEL
 # RssEntry
 DB.create_table :rss_entries do
   primary_key :id
   String   :title, :size => 2048, :required => true
-  String   :body,  :text => true
-  String   :uri,   :size => 4096, :required => true
+  String   :body,  :text => true, :unique => true
+  String   :uri,   :size => 4096, :unique => true, :required => true
   String   :original_uri, :size => 4096, :unique => true, :required => true
   DateTime :published_at
 end
@@ -31,7 +29,7 @@ class RssEntry < Sequel::Model
   def validate
     super
     validates_presence [:title, :original_uri, :uri]
-    validates_unique :original_uri
+    validates_unique [:body, :uri, :original_uri]
   end
 end
 
@@ -77,8 +75,7 @@ end # get_real_url()
 # used to get rid of useless utm_source parameters
 def get_url_without_params(uri)
   # FIXME: should cache results
-  parsed = URI.parse( uri )
-  parsed.scheme + '://' + parsed.host + parsed.path
+  return uri.sub(/\?.*/, '')
 end # get_url_without_params
 
 # accepts URIs from a feed
@@ -95,7 +92,12 @@ end # can_use_simple_url
 def get_all_rss(rss_uri_list)
   rss_uri_list.each do |rss_uri|
     # get real url for feed (following redirects) and open it
-    feed = Feedjira::Feed.fetch_and_parse get_real_url(rss_uri)
+    begin
+      feed = Feedjira::Feed.fetch_and_parse get_real_url(rss_uri)
+    rescue => e
+      #$stderr.puts "Error on feed #{rss_uri}, #{e}"
+      next
+    end
     feed.entries.each do |rss_entry|
       begin
         rss_post = RssEntry.create(
@@ -106,7 +108,8 @@ def get_all_rss(rss_uri_list)
           :published_at => rss_entry.published
         )
       rescue => e
-        puts "Error on post #{rss_entry.url}, #{e}"
+        #$stderr.puts "Error on post #{rss_entry.url}, #{e}"
+        next
       end
     end
   end
@@ -120,12 +123,14 @@ end
 f.close
 get_all_rss(feeds)
 
-# start HTML
-puts "<html lang=\"it\"><head><title>RSS feed</title><meta charset=\"UTF-8\" /></head><body>"
+template = File.read('index.html')
+news_string = ''
 
-RssEntry.where{published_at > (Date.today - 7)}.order(Sequel.desc(:published_at)).each do |rss_entry|
-  puts "<a href=\"#{rss_entry.uri}\"><h2>#{rss_entry.title} - #{rss_entry.published_at}</h2></a>"
-  puts "#{rss_entry.body}"
+RssEntry.where{published_at > (Date.today - 3)}.order(Sequel.desc(:published_at)).each do |rss_entry|
+  news_string += "<div class=\"newsentry\"><a href=\"#{rss_entry.uri}\"><h2 class=\"newstitle\">#{rss_entry.title}</h2></a>
+<p class=\"date\">published: #{rss_entry.published_at}</p>
+<p class=\"newsbody\">#{rss_entry.body}</p>
+</div>"
 end
 
-puts "</body></html>"
+puts template.gsub('%%NEWS%%', news_string)
