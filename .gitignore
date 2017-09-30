@@ -1,6 +1,6 @@
 # decomplexinfo
 *.log
-my_feedx.txt
+my_feeds.txt
 *.html
 
 *.gem
