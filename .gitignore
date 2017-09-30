@@ -1,3 +1,8 @@
+# decomplexinfo
+*.log
+my_feedx.txt
+*.html
+
 *.gem
 *.rbc
 /.config
