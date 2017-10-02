@@ -1,7 +1,7 @@
 # decomplexinfo
 *.log
 my_feeds.txt
-*.html
+rss.html
 
 *.gem
 *.rbc
