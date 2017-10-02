@@ -51,7 +51,7 @@ end
 # close the filehandle
 f.close
 
-template = File.read('index.html')
+template = File.read('template.html')
 news_string = ''
 
 RssEntry.where{published_at > (Date.today - 3)}.order(Sequel.desc(:published_at)).each do |rss_entry|
@@ -61,4 +61,4 @@ RssEntry.where{published_at > (Date.today - 3)}.order(Sequel.desc(:published_at)
 </div>"
 end
 
-puts template.gsub('%%NEWS%%', news_string)
+File.open('rss.html'), 'w') { |file| file.write(template.gsub('%%NEWS%%', news_string)) }
