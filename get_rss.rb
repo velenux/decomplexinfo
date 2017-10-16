@@ -31,7 +31,7 @@ f.each_line do |uri|
   end
   feed.entries.each do |rss_entry|
     # skip this if we already have it in the database
-    if RssEntry.where{original_uri == rss_entry.url}
+    if RssEntry.where(:original_uri => rss_entry.url).count() >= 1
       log.debug "DUPLICATE: #{rss_entry.url} found in database"
       next
     end
@@ -44,6 +44,7 @@ f.each_line do |uri|
         :original_uri => rss_entry.url,
         :published_at => rss_entry.published
       )
+      log.info "Added #{rss_entry.url}"
     rescue => e
       log.error "Error on post #{rss_entry.url}, #{e}"
       next
