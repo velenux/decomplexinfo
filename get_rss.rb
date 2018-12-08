@@ -6,6 +6,7 @@
 require 'net/http'
 require 'uri'
 require 'feedjira'
+require 'sanitize'
 require 'logger'
 require 'set'
 
@@ -21,8 +22,10 @@ log = Logger.new('logs/decomplexinfo.log', 'weekly')
 # open my_feeds.txt
 f = open('my_feeds.txt')
 f.each_line do |uri|
+  entry_counter = 0
   rss_uri = uri.chomp
   begin
+    log.info "=== RSS === #{rss_uri}"
     # get real url for feed (following redirects) and open it
     feed = Feedjira::Feed.fetch_and_parse get_real_url(rss_uri)
   rescue => e
@@ -30,6 +33,8 @@ f.each_line do |uri|
     next
   end
   feed.entries.each do |rss_entry|
+    entry_counter += 1
+    log.info "=== ENTRY === #{entry_counter} of #{feed.entries.size()}"
     # skip this if we already have it in the database
     if RssEntry.where(:original_uri => rss_entry.url).count() >= 1
       log.debug "DUPLICATE: #{rss_entry.url} found in database"
@@ -39,7 +44,7 @@ f.each_line do |uri|
     begin
       rss_post = RssEntry.create(
         :title => rss_entry.title,
-        :body  => rss_entry.summary,
+        :body  => Sanitize.fragment(rss_entry.summary, Sanitize::Config::RELAXED),
         :uri   => get_real_url(rss_entry.url),
         :original_uri => rss_entry.url,
         :published_at => rss_entry.published
