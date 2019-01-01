@@ -42,8 +42,11 @@ end # get_real_url()
 # we need this to get URI without parameters
 # used to get rid of useless utm_source parameters
 def get_url_without_params(uri)
+  return '' if uri.nil?
+  return '' if uri == ''
+  return '' if uri.empty?
   # FIXME: should cache results
-  return uri.sub(/\?.*/, '')
+  ret = uri.sub(/\?.*/, '')
 end # get_url_without_params
 
 # accepts URIs from a feed

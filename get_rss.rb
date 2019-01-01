@@ -32,26 +32,58 @@ f.each_line do |uri|
     log.error "Error on feed #{rss_uri}, #{e}"
     next
   end
+
+  # verify if we can actually use urls without the parameters
+  # FIXME: this should be internal to RssEntry
+  if can_use_simple_url?( feed.entries.map { |u| u.url } )
+    log.debug "SIMPLE_URLS enabled for #{rss_uri}"
+    simple_urls = true
+  else
+    log.debug "SIMPLE_URLS disabled for #{rss_uri}"
+    simple_urls = false
+  end
+
+  # cycle over the entries
   feed.entries.each do |rss_entry|
     entry_counter += 1
     log.info "=== ENTRY === #{entry_counter} of #{feed.entries.size()}"
-    # skip this if we already have it in the database
+
+    # skip this if we already have this original_uri
     if RssEntry.where(:original_uri => rss_entry.url).count() >= 1
-      log.debug "DUPLICATE: #{rss_entry.url} found in database"
+      log.debug "DUPLICATE original_uri found in database"
       next
     end
+
+    # skip this if we already have an article with the same body
+    entry_body = Sanitize.fragment(rss_entry.summary, Sanitize::Config::RELAXED)
+    if RssEntry.where(:body => entry_body).count() >= 1
+      log.debug "DUPLICATE body found in database"
+      next
+    end
+
+    # remove parameters from the URL if possible, to avoid tracking
+    if simple_urls
+      entry_url = get_real_url( get_url_without_params(rss_entry.url) )
+    end
+    #log.debug "<< ORIGINAL  #{rss_entry.url}   (#{rss_entry.url.class})"
+    #log.debug ">> REAL      #{entry_url}   (#{entry_url.class})"
+
+    # sanitize the title too
+    entry_title = Sanitize.fragment(rss_entry.title, Sanitize::Config::RELAXED)
+    entry_url = get_real_url( rss_entry.url )
+
     # if we don't have it, add it to the database
     begin
       rss_post = RssEntry.create(
-        :title => rss_entry.title,
-        :body  => Sanitize.fragment(rss_entry.summary, Sanitize::Config::RELAXED),
-        :uri   => get_real_url(rss_entry.url),
+        :title => entry_title,
+        :body  => entry_body,
+        :uri   => entry_url,
         :original_uri => rss_entry.url,
         :published_at => rss_entry.published
       )
-      log.info "Added #{rss_entry.url}"
+      log.info "Added '#{entry_title}'"
     rescue => e
-      log.error "Error on post #{rss_entry.url}, #{e}"
+      log.error "Error on #{rss_entry.url} - #{e}"
       next
     end
   end
