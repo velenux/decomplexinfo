@@ -1,6 +1,7 @@
 # decomplexinfo
-decomplexinfo.db
+*.db
 *.log
+logs/*
 my_feeds.txt
 rss.html
 
