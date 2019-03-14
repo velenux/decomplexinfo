@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # encoding: utf-8
 
 # Copyright (C) Gilberto "Velenux" Ficara <g.ficara@stardata.it>
