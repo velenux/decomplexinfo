@@ -19,6 +19,10 @@ require './lib/uri.rb'
 
 log = Logger.new('logs/decomplexinfo.log', 'weekly')
 
+Feedjira.configure do |config|
+  config.user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0"
+end
+
 # open my_feeds.txt
 f = open('my_feeds.txt')
 f.each_line do |uri|
@@ -26,8 +30,7 @@ f.each_line do |uri|
   rss_uri = uri.chomp
   begin
     log.info "=== RSS === #{rss_uri}"
-    # get real url for feed (following redirects) and open it
-    feed = Feedjira::Feed.fetch_and_parse get_real_url(rss_uri)
+    feed = Feedjira::Feed.fetch_and_parse rss_uri
   rescue => e
     log.error "Error on feed #{rss_uri}, #{e}"
     next
@@ -63,14 +66,15 @@ f.each_line do |uri|
 
     # remove parameters from the URL if possible, to avoid tracking
     if simple_urls
-      entry_url = get_real_url( get_url_without_params(rss_entry.url) )
+      entry_url = get_url_without_params( get_real_url(rss_entry.url) )
+    else
+      entry_url = get_real_url( rss_entry.url )
     end
     #log.debug "<< ORIGINAL  #{rss_entry.url}   (#{rss_entry.url.class})"
     #log.debug ">> REAL      #{entry_url}   (#{entry_url.class})"
 
     # sanitize the title too
     entry_title = Sanitize.fragment(rss_entry.title, Sanitize::Config::RELAXED)
-    entry_url = get_real_url( rss_entry.url )
 
     # if we don't have it, add it to the database
     begin

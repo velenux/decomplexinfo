@@ -41,12 +41,20 @@ end # get_real_url()
 
 # we need this to get URI without parameters
 # used to get rid of useless utm_source parameters
+# FIXME: should cache results!
 def get_url_without_params(uri)
-  return '' if uri.nil?
-  return '' if uri == ''
-  return '' if uri.empty?
-  # FIXME: should cache results
-  ret = uri.sub(/\?.*/, '')
+  begin
+    if uri.instance_of? URI or uri.instance_of? URI::HTTPS or uri.instance_of? URI::HTTP
+      return URI.parse(uri.scheme + '://' + uri.host + '/' + uri.path)
+    end
+    # return an empty string if the url is empty
+    return '' if ['', nil].include? uri
+    return '' if uri.to_s.match(/^\s*$/)
+    return uri.sub(/\?.*/, '')
+  rescue => e
+    puts "Error #{e} processing #{uri} to remove parameters"
+    raise e
+  end
 end # get_url_without_params
 
 # accepts URIs from a feed
