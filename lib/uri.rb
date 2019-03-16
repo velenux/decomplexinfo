@@ -45,7 +45,7 @@ end # get_real_url()
 def get_url_without_params(uri)
   begin
     if uri.instance_of? URI or uri.instance_of? URI::HTTPS or uri.instance_of? URI::HTTP
-      return URI.parse(uri.scheme + '://' + uri.host + '/' + uri.path)
+      return URI.parse(uri.scheme + '://' + uri.host + uri.path)
     end
     # return an empty string if the url is empty
     return '' if ['', nil].include? uri
