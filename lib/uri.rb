@@ -17,7 +17,11 @@ def get_real_url(url, limit=10)
   current_url = URI.parse(url) if url.instance_of? String
 
   # connect to the uri passed as argument
-  response = Net::HTTP.get_response(current_url)
+  begin
+    response = Net::HTTP.get_response(current_url)
+  rescue
+    return nil
+  end
   case response
     when Net::HTTPSuccess then
       # found the final form, return it
