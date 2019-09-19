@@ -8,6 +8,7 @@
 require 'net/http'
 require 'uri'
 require 'feedjira'
+require 'httparty'
 require 'sanitize'
 require 'logger'
 require 'set'
@@ -21,10 +22,6 @@ require './lib/uri.rb'
 
 log = Logger.new('logs/decomplexinfo.log', 'weekly')
 
-Feedjira.configure do |config|
-  config.user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0"
-end
-
 # open my_feeds.txt
 f = open('my_feeds.txt')
 f.each_line do |uri|
@@ -32,7 +29,10 @@ f.each_line do |uri|
   rss_uri = uri.chomp
   begin
     log.info "=== RSS === #{rss_uri}"
-    feed = Feedjira::Feed.fetch_and_parse rss_uri
+    xml = HTTParty.get(rss_uri,
+      { headers: {'User-Agent' => "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0"} }
+    ).body
+    feed = Feedjira.parse(xml)
   rescue => e
     log.error "Error on feed #{rss_uri}, #{e}"
     next
