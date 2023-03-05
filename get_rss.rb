@@ -60,8 +60,13 @@ f.each_line do |uri|
       next
     end
 
-    # skip this if we already have an article with the same body
-    entry_body = Sanitize.fragment(rss_entry.summary, Sanitize::Config::RELAXED)
+    begin
+      # skip this if we already have an article with the same body
+      entry_body = Sanitize.fragment(rss_entry.summary, Sanitize::Config::RELAXED)
+    rescue => e
+      log.warn "Can't sanitize rss_entry.summary, #{e}"
+      entry_body = rss_entry.summary
+    end
     if RssEntry.where(:body => entry_body).count() >= 1
       log.debug "DUPLICATE body found in database"
       next
@@ -77,7 +82,12 @@ f.each_line do |uri|
     #log.debug ">> REAL      #{entry_url}   (#{entry_url.class})"
 
     # sanitize the title too
-    entry_title = Sanitize.fragment(rss_entry.title, Sanitize::Config::RELAXED)
+    begin
+      entry_title = Sanitize.fragment(rss_entry.title, Sanitize::Config::RELAXED)
+    rescue => e
+      log.warn "Can't sanitize entry title '#{rss_entry.title}', #{e}"
+      entry_title = rss_entry.title
+    end
 
     # if we don't have it, add it to the database
     begin

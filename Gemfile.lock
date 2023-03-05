@@ -14,6 +14,7 @@ GEM
     mini_mime (1.1.2)
     multi_xml (0.6.0)
     nokogiri (1.14.2-x86_64-linux)
+    mini_portile2 (2.8.1)
       racc (~> 1.4)
     racc (1.6.2)
     rake_text (0.0.1)
