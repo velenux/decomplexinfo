@@ -21,6 +21,7 @@ require './lib/uri.rb'
 # main
 
 log = Logger.new('logs/decomplexinfo.log', 'weekly')
+ts = Time.now()
 
 # open my_feeds.txt
 f = open('my_feeds.txt')
@@ -80,6 +81,13 @@ f.each_line do |uri|
 
     # if we don't have it, add it to the database
     begin
+      # fix RSS that report a published date in the future -.-
+      if rss_entry.published > ts
+        log.debug "PUB DATE fixing wrong publishing date in #{rss_uri} entry #{entry_counter}"
+        published_at = ts
+      else
+        published_at = rss_entry.published
+      end
       rss_post = RssEntry.create(
         :title => entry_title,
         :body  => entry_body,
