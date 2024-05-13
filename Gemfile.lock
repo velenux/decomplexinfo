@@ -13,7 +13,7 @@ GEM
       nokogiri (>= 1.5.9)
     mini_mime (1.1.2)
     multi_xml (0.6.0)
-    nokogiri (1.16.2-x86_64-linux)
+    nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
     racc (1.7.3)
     rake_text (0.0.1)
