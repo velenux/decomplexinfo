@@ -1,18 +1,22 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    bigdecimal (4.0.1)
     crass (1.0.6)
+    csv (3.3.5)
     feedjira (3.2.2)
       loofah (>= 2.3.1)
       sax-machine (>= 1.0)
-    httparty (0.21.0)
+    httparty (0.24.0)
+      csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    mini_mime (1.1.2)
-    multi_xml (0.6.0)
+    mini_mime (1.1.5)
+    multi_xml (0.8.0)
+      bigdecimal (>= 3.1, < 5)
     nokogiri (1.18.9-x86_64-linux-gnu)
       racc (~> 1.4)
     racc (1.8.1)
