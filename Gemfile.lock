@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     bigdecimal (4.0.1)
-    crass (1.0.6)
+    crass (1.0.7)
     csv (3.3.5)
     feedjira (3.2.2)
       loofah (>= 2.3.1)
@@ -11,9 +11,9 @@ GEM
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
-    loofah (2.19.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mini_mime (1.1.5)
     multi_xml (0.8.0)
       bigdecimal (>= 3.1, < 5)
